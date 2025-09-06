@@ -27,10 +27,14 @@ GOOGLE_CLOUD_CLIENT_EMAIL = os.getenv("GOOGLE_CLOUD_CLIENT_EMAIL")
 GOOGLE_CLOUD_CLIENT_ID = os.getenv("GOOGLE_CLOUD_CLIENT_ID")
 
 # Debug logging
-print(f"DEBUG - GOOGLE_CLOUD_PROJECT_ID: {'SET' if GOOGLE_CLOUD_PROJECT_ID else 'NOT SET'}")
-print(f"DEBUG - GOOGLE_CLOUD_PRIVATE_KEY: {'SET' if GOOGLE_CLOUD_PRIVATE_KEY else 'NOT SET'}")
-print(f"DEBUG - GOOGLE_CLOUD_CLIENT_EMAIL: {'SET' if GOOGLE_CLOUD_CLIENT_EMAIL else 'NOT SET'}")
-print(f"DEBUG - GOOGLE_CLOUD_CLIENT_ID: {'SET' if GOOGLE_CLOUD_CLIENT_ID else 'NOT SET'}")
+import logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+logger.info(f"DEBUG - GOOGLE_CLOUD_PROJECT_ID: {'SET' if GOOGLE_CLOUD_PROJECT_ID else 'NOT SET'}")
+logger.info(f"DEBUG - GOOGLE_CLOUD_PRIVATE_KEY: {'SET' if GOOGLE_CLOUD_PRIVATE_KEY else 'NOT SET'}")
+logger.info(f"DEBUG - GOOGLE_CLOUD_CLIENT_EMAIL: {'SET' if GOOGLE_CLOUD_CLIENT_EMAIL else 'NOT SET'}")
+logger.info(f"DEBUG - GOOGLE_CLOUD_CLIENT_ID: {'SET' if GOOGLE_CLOUD_CLIENT_ID else 'NOT SET'}")
 
 # Optional vars (with defaults)
 DEBUG = os.getenv("DEBUG", "false").lower() == "true"

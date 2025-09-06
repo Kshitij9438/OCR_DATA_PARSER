@@ -40,6 +40,18 @@ async def root():
         "timestamp": datetime.now().isoformat()
     }
 
+@app.get("/debug-env", tags=["Debug"])
+async def debug_env():
+    """Debug endpoint to check environment variables directly."""
+    import os
+    return {
+        "GOOGLE_CLOUD_PROJECT_ID": os.getenv("GOOGLE_CLOUD_PROJECT_ID", "NOT_SET"),
+        "GOOGLE_CLOUD_PRIVATE_KEY": "SET" if os.getenv("GOOGLE_CLOUD_PRIVATE_KEY") else "NOT_SET",
+        "GOOGLE_CLOUD_CLIENT_EMAIL": os.getenv("GOOGLE_CLOUD_CLIENT_EMAIL", "NOT_SET"),
+        "GOOGLE_CLOUD_CLIENT_ID": os.getenv("GOOGLE_CLOUD_CLIENT_ID", "NOT_SET"),
+        "GOOGLE_API_KEY": "SET" if os.getenv("GOOGLE_API_KEY") else "NOT_SET"
+    }
+
 @app.get("/health", tags=["Health Check"])
 async def health_check():
     """Detailed health check endpoint for Railway monitoring."""
