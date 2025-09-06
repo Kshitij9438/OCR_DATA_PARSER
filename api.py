@@ -68,6 +68,12 @@ async def health_check():
                 "api": "operational",
                 "google_vision": "operational" if vision_configured else "not_configured",
                 "google_ai": "operational" if GOOGLE_API_KEY else "not_configured"
+            },
+            "debug": {
+                "has_project_id": bool(GOOGLE_CLOUD_PROJECT_ID),
+                "has_private_key": bool(GOOGLE_CLOUD_PRIVATE_KEY),
+                "has_client_email": bool(GOOGLE_CLOUD_CLIENT_EMAIL),
+                "has_credentials_file": bool(GOOGLE_APPLICATION_CREDENTIALS and os.path.exists(GOOGLE_APPLICATION_CREDENTIALS))
             }
         }
             
