@@ -18,7 +18,14 @@ from google.cloud import vision
 from google.api_core import exceptions
 
 # Import your configuration
-from config import GOOGLE_API_KEY, GOOGLE_APPLICATION_CREDENTIALS
+from config import (
+    GOOGLE_API_KEY, 
+    GOOGLE_APPLICATION_CREDENTIALS,
+    GOOGLE_CLOUD_PROJECT_ID,
+    GOOGLE_CLOUD_PRIVATE_KEY,
+    GOOGLE_CLOUD_CLIENT_EMAIL,
+    GOOGLE_CLOUD_CLIENT_ID
+)
 
 # --- 1. Define the Structured Output (Your Pydantic Model) ---
 class Expenses(BaseModel):
@@ -34,12 +41,44 @@ class Expenses(BaseModel):
 def get_text_from_receipt(image_path: str) -> Optional[str]:
     """Uses Google Cloud Vision to perform OCR on a local image file."""
     try:
-        # Check for authentication credentials
-        if not GOOGLE_APPLICATION_CREDENTIALS or not os.path.exists(GOOGLE_APPLICATION_CREDENTIALS):
-            print(f"Error: Google Cloud credentials not found or path is invalid: {GOOGLE_APPLICATION_CREDENTIALS}")
+        # Initialize client with different credential methods
+        client = None
+        
+        # Method 1: Use JSON credentials file
+        if GOOGLE_APPLICATION_CREDENTIALS and os.path.exists(GOOGLE_APPLICATION_CREDENTIALS):
+            print(f"Using JSON credentials file: {GOOGLE_APPLICATION_CREDENTIALS}")
+            client = vision.ImageAnnotatorClient()
+        
+        # Method 2: Use individual environment variables
+        elif all([GOOGLE_CLOUD_PROJECT_ID, GOOGLE_CLOUD_PRIVATE_KEY, GOOGLE_CLOUD_CLIENT_EMAIL]):
+            print("Using individual credential environment variables")
+            from google.oauth2 import service_account
+            import json
+            
+            # Create credentials from environment variables
+            credentials_info = {
+                "type": "service_account",
+                "project_id": GOOGLE_CLOUD_PROJECT_ID,
+                "private_key_id": GOOGLE_CLOUD_CLIENT_ID or "",
+                "private_key": GOOGLE_CLOUD_PRIVATE_KEY.replace('\\n', '\n'),
+                "client_email": GOOGLE_CLOUD_CLIENT_EMAIL,
+                "client_id": GOOGLE_CLOUD_CLIENT_ID or "",
+                "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+                "token_uri": "https://oauth2.googleapis.com/token",
+                "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+                "client_x509_cert_url": f"https://www.googleapis.com/robot/v1/metadata/x509/{GOOGLE_CLOUD_CLIENT_EMAIL}"
+            }
+            
+            credentials = service_account.Credentials.from_service_account_info(credentials_info)
+            client = vision.ImageAnnotatorClient(credentials=credentials)
+        
+        else:
+            print("Error: No valid Google Cloud credentials found")
+            print("Please set either:")
+            print("1. GOOGLE_APPLICATION_CREDENTIALS pointing to a valid JSON file, or")
+            print("2. GOOGLE_CLOUD_PROJECT_ID, GOOGLE_CLOUD_PRIVATE_KEY, and GOOGLE_CLOUD_CLIENT_EMAIL")
             return None
 
-        client = vision.ImageAnnotatorClient()
         print(f"Reading image from: {image_path}")
         with open(image_path, "rb") as image_file:
             content = image_file.read()
@@ -60,6 +99,8 @@ def get_text_from_receipt(image_path: str) -> Optional[str]:
 
     except Exception as e:
         print(f"An unexpected error occurred during OCR: {e}")
+        import traceback
+        traceback.print_exc()
         return None
 
 # --- 3. The LLM Agent for Structuring the Data ---

@@ -45,7 +45,20 @@ async def health_check():
     """Detailed health check endpoint for Railway monitoring."""
     try:
         # Check if required environment variables are present
-        from config import GOOGLE_API_KEY, GOOGLE_APPLICATION_CREDENTIALS
+        from config import (
+            GOOGLE_API_KEY, 
+            GOOGLE_APPLICATION_CREDENTIALS,
+            GOOGLE_CLOUD_PROJECT_ID,
+            GOOGLE_CLOUD_PRIVATE_KEY,
+            GOOGLE_CLOUD_CLIENT_EMAIL
+        )
+        
+        # Check Google Vision credentials
+        vision_configured = False
+        if GOOGLE_APPLICATION_CREDENTIALS and os.path.exists(GOOGLE_APPLICATION_CREDENTIALS):
+            vision_configured = True
+        elif all([GOOGLE_CLOUD_PROJECT_ID, GOOGLE_CLOUD_PRIVATE_KEY, GOOGLE_CLOUD_CLIENT_EMAIL]):
+            vision_configured = True
         
         health_status = {
             "status": "healthy",
@@ -53,16 +66,10 @@ async def health_check():
             "version": "1.0.0",
             "services": {
                 "api": "operational",
-                "google_vision": "configured" if GOOGLE_APPLICATION_CREDENTIALS else "not_configured",
-                "google_ai": "configured" if GOOGLE_API_KEY else "not_configured"
+                "google_vision": "operational" if vision_configured else "not_configured",
+                "google_ai": "operational" if GOOGLE_API_KEY else "not_configured"
             }
         }
-        
-        # Check if Google credentials file exists
-        if GOOGLE_APPLICATION_CREDENTIALS and os.path.exists(GOOGLE_APPLICATION_CREDENTIALS):
-            health_status["services"]["google_vision"] = "operational"
-        else:
-            health_status["services"]["google_vision"] = "not_configured"
             
         return health_status
         

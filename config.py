@@ -16,7 +16,15 @@ def get_env_var(name: str) -> str:
 
 # Example usage
 GOOGLE_API_KEY = get_env_var("GOOGLE_API_KEY")
-GOOGLE_APPLICATION_CREDENTIALS = get_env_var("GOOGLE_APPLICATION_CREDENTIALS")
+
+# Try to get credentials path, but don't fail if not provided
+GOOGLE_APPLICATION_CREDENTIALS = os.getenv("GOOGLE_APPLICATION_CREDENTIALS")
+
+# Alternative: Use individual credential environment variables
+GOOGLE_CLOUD_PROJECT_ID = os.getenv("GOOGLE_CLOUD_PROJECT_ID")
+GOOGLE_CLOUD_PRIVATE_KEY = os.getenv("GOOGLE_CLOUD_PRIVATE_KEY")
+GOOGLE_CLOUD_CLIENT_EMAIL = os.getenv("GOOGLE_CLOUD_CLIENT_EMAIL")
+GOOGLE_CLOUD_CLIENT_ID = os.getenv("GOOGLE_CLOUD_CLIENT_ID")
 
 # Optional vars (with defaults)
 DEBUG = os.getenv("DEBUG", "false").lower() == "true"
