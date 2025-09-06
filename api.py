@@ -104,13 +104,14 @@ async def process_receipt_endpoint(file: UploadFile = File(...)):
     Accepts an uploaded receipt image, performs OCR and LLM structuring,
     and returns the extracted expense data as JSON.
     """
-    # Create a temporary path to save the uploaded file
-    temp_file_path = f"temp_{file.filename}"
+    # Create a temporary path to save the uploaded file in /tmp (Railway allows writing here)
+    temp_file_path = f"/tmp/temp_{file.filename}"
     
     try:
         # Save the uploaded file to disk
+        contents = await file.read()
         with open(temp_file_path, "wb") as buffer:
-            shutil.copyfileobj(file.file, buffer)
+            buffer.write(contents)
 
         # --- Step 1: Perform OCR ---
         raw_text = get_text_from_receipt(temp_file_path)
