@@ -52,6 +52,8 @@ def get_text_from_receipt(image_path: str) -> Optional[str]:
         # Method 2: Use individual environment variables
         elif all([GOOGLE_CLOUD_PROJECT_ID, GOOGLE_CLOUD_PRIVATE_KEY, GOOGLE_CLOUD_CLIENT_EMAIL]):
             print("Using individual credential environment variables")
+            print(f"Project ID: {GOOGLE_CLOUD_PROJECT_ID}")
+            print(f"Client Email: {GOOGLE_CLOUD_CLIENT_EMAIL}")
             from google.oauth2 import service_account
             import json
             
@@ -69,8 +71,11 @@ def get_text_from_receipt(image_path: str) -> Optional[str]:
                 "client_x509_cert_url": f"https://www.googleapis.com/robot/v1/metadata/x509/{GOOGLE_CLOUD_CLIENT_EMAIL}"
             }
             
+            print("Creating credentials from environment variables...")
             credentials = service_account.Credentials.from_service_account_info(credentials_info)
+            print("Creating Vision client...")
             client = vision.ImageAnnotatorClient(credentials=credentials)
+            print("Vision client created successfully!")
         
         else:
             print("Error: No valid Google Cloud credentials found")
@@ -100,7 +105,8 @@ def get_text_from_receipt(image_path: str) -> Optional[str]:
     except Exception as e:
         print(f"An unexpected error occurred during OCR: {e}")
         import traceback
-        traceback.print_exc()
+        error_details = traceback.format_exc()
+        print(f"Full OCR error traceback: {error_details}")
         return None
 
 # --- 3. The LLM Agent for Structuring the Data ---
