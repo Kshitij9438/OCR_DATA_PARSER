@@ -130,7 +130,12 @@ async def process_receipt_endpoint(file: UploadFile = File(...)):
     except Exception as e:
         # If any unexpected error occurs, return a generic 500 error
         # In debug mode, we can return the specific error message
-        detail = str(e) if DEBUG else "An unexpected error occurred on the server."
+        import traceback
+        error_details = traceback.format_exc()
+        print(f"Error processing receipt: {e}")
+        print(f"Full traceback: {error_details}")
+        
+        detail = str(e)  # Always show the actual error for now
         raise HTTPException(status_code=500, detail=detail)
     finally:
         # --- Step 3: Clean up the temporary file ---
