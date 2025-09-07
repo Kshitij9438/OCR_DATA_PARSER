@@ -77,46 +77,46 @@ def get_text_from_receipt(image_path: str) -> Optional[str]:
                 "client_x509_cert_url": f"https://www.googleapis.com/robot/v1/metadata/x509/{GOOGLE_CLOUD_CLIENT_EMAIL}"
             }
             
-        print("Creating credentials from environment variables...")
-        try:
-            credentials = service_account.Credentials.from_service_account_info(credentials_info)
-            print("Credentials created successfully!")
-        except Exception as cred_error:
-            print(f"Error creating credentials: {cred_error}")
-            raise cred_error
-            
-        print("Creating Vision client...")
-        try:
-            client = vision.ImageAnnotatorClient(credentials=credentials)
-            print("Vision client created successfully!")
-        except Exception as client_error:
-            print(f"Error creating Vision client: {client_error}")
-            raise client_error
+            print("Creating credentials from environment variables...")
+            try:
+                credentials = service_account.Credentials.from_service_account_info(credentials_info)
+                print("Credentials created successfully!")
+            except Exception as cred_error:
+                print(f"Error creating credentials: {cred_error}")
+                raise cred_error
+                
+            print("Creating Vision client...")
+            try:
+                client = vision.ImageAnnotatorClient(credentials=credentials)
+                print("Vision client created successfully!")
+            except Exception as client_error:
+                print(f"Error creating Vision client: {client_error}")
+                raise client_error
         
-    else:
-        print("Error: No valid Google Cloud credentials found")
-        print("Please set either:")
-        print("1. GOOGLE_APPLICATION_CREDENTIALS pointing to a valid JSON file, or")
-        print("2. GOOGLE_CLOUD_PROJECT_ID, GOOGLE_CLOUD_PRIVATE_KEY, and GOOGLE_CLOUD_CLIENT_EMAIL")
-        return None
+        else:
+            print("Error: No valid Google Cloud credentials found")
+            print("Please set either:")
+            print("1. GOOGLE_APPLICATION_CREDENTIALS pointing to a valid JSON file, or")
+            print("2. GOOGLE_CLOUD_PROJECT_ID, GOOGLE_CLOUD_PRIVATE_KEY, and GOOGLE_CLOUD_CLIENT_EMAIL")
+            return None
 
-    print(f"Reading image from: {image_path}")
-    with open(image_path, "rb") as image_file:
-        content = image_file.read()
+        print(f"Reading image from: {image_path}")
+        with open(image_path, "rb") as image_file:
+            content = image_file.read()
 
-    image = vision.Image(content=content)
-    print("Sending request to Google Cloud Vision API...")
-    response = client.text_detection(image=image)
-    
-    if response.error.message:
-        raise exceptions.GoogleAPICallError(response.error.message)
+        image = vision.Image(content=content)
+        print("Sending request to Google Cloud Vision API...")
+        response = client.text_detection(image=image)
+        
+        if response.error.message:
+            raise exceptions.GoogleAPICallError(response.error.message)
 
-    if response.text_annotations:
-        print("OCR successful.")
-        return response.text_annotations[0].description
-    
-    print("No text found in the image.")
-    return ""
+        if response.text_annotations:
+            print("OCR successful.")
+            return response.text_annotations[0].description
+        
+        print("No text found in the image.")
+        return ""
 
     except Exception as e:
         print(f"An unexpected error occurred during OCR: {e}")
